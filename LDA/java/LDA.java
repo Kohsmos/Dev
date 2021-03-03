@@ -45,8 +45,7 @@ public class LDA {
             for (int i=0; i<targets.size(); i++) {
                 String[] sentenceSplit = targets.get(i).split(" ");
                 for (int j=0; j<sentenceSplit.length; j++) {
-                    double max = 0;
-                    int maxIdx = -1;
+                    List<Double> scores = new LinkedList<>();
                     String word = sentenceSplit[j];
                     int topic = topics.get(i).get(j);
                     documentTopic.get(i)[topic]--;
@@ -61,14 +60,13 @@ public class LDA {
                             topicWordSum+=topicWord[l].get(words.get(m));
                         }
                         double score = ((double)documentTopic.get(i)[l] + alpha/k)/(documentTopicSum+alpha) * ((double)topicWord[l].get(word)+beta)/((double)topicWordSum+beta*words.size());
-                        if (max<=score) {
-                            max = score;
-                            maxIdx = l;
-                        }
+                        scores.add(score);
                     }
-                    documentTopic.get(i)[maxIdx]++;
-                    topicWord[maxIdx].put(word,topicWord[maxIdx].get(word)+1);
-                    topics.get(i).set(j,maxIdx);
+                    int idx = sampling(scores);
+//                    System.out.println(k+","+idx);
+                    documentTopic.get(i)[idx]++;
+                    topicWord[idx].put(word,topicWord[idx].get(word)+1);
+                    topics.get(i).set(j,idx);
                 }
             }
         }
@@ -95,6 +93,20 @@ public class LDA {
             System.out.println(resTopic[i]);
         }
 
+    }
 
+    public int sampling(List<Double> weights) {
+        double sum = 0;
+        for (int i=0; i<weights.size(); i++) {
+            sum+=weights.get(i);
+        }
+        double random = Math.random() * sum;
+        for (int i=0; i<weights.size(); i++) {
+            random-=weights.get(i);
+            if (random<=0) {
+                return i;
+            }
+        }
+        return weights.size()-1;
     }
 }
