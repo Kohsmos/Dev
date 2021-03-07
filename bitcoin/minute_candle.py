@@ -9,7 +9,7 @@ with open("./data.txt", mode = "wt", encoding="utf-8") as f:
         res = res.json()
         to_date = res[-1]["candle_date_time_utc"].replace("T", " ")
         for r in res:
-            ust_time = r["candle_date_time_kst"]
+            ust_time = r["candle_date_time_utc"]
             opening = str(r["opening_price"])
             high = str(r["high_price"])
             low = str(r["low_price"])
